@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized AI Training Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Decentralized AI Training</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#create-task">Create Task</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#workers">Worker Nodes</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info" role="alert" id="status-message">
+                    Welcome to the Decentralized AI Training Dashboard
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="mb-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Training Tasks</h5>
+                            <button id="refresh-tasks" class="btn btn-sm btn-light">Refresh</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Task ID</th>
+                                            <th>Status</th>
+                                            <th>Model Size</th>
+                                            <th>Data Size</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tasks-table-body">
+                                        <!-- Tasks will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="task-pagination" class="d-flex justify-content-center mt-3">
+                                <!-- Pagination controls will be added by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Task Status Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="status-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Worker Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="worker-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create Task Section -->
+        <section id="create-task" class="mb-5" style="display:none;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Create New Training Task</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="task-form">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="input-size" class="form-label">Input Size</label>
+                                            <input type="number" class="form-control" id="input-size" name="input_size" value="10" min="1" required>
+                                            <div class="form-text">Number of input features</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="hidden-size" class="form-label">Hidden Size</label>
+                                            <input type="number" class="form-control" id="hidden-size" name="hidden_size" value="20" min="1" required>
+                                            <div class="form-text">Number of hidden neurons</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="output-size" class="form-label">Output Size</label>
+                                            <input type="number" class="form-control" id="output-size" name="output_size" value="10" min="1" required>
+                                            <div class="form-text">Number of output features</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="data-size" class="form-label">Data Size</label>
+                                            <input type="number" class="form-control" id="data-size" name="data_size" value="100" min="10" max="10000" required>
+                                            <div class="form-text">Number of training samples</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="batch-size" class="form-label">Batch Size</label>
+                                            <input type="number" class="form-control" id="batch-size" name="batch_size" value="32" min="1" required>
+                                            <div class="form-text">Training batch size</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="epochs" class="form-label">Epochs</label>
+                                            <input type="number" class="form-control" id="epochs" name="epochs" value="5" min="1" max="100" required>
+                                            <div class="form-text">Number of training epochs</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="learning-rate" class="form-label">Learning Rate</label>
+                                            <input type="number" class="form-control" id="learning-rate" name="learning_rate" value="0.001" min="0.0001" max="1" step="0.0001" required>
+                                            <div class="form-text">Model learning rate</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">Create Task</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Workers Section -->
+        <section id="workers" class="mb-5" style="display:none;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Connected Worker Nodes</h5>
+                            <button id="refresh-workers" class="btn btn-sm btn-light">Refresh</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Worker ID</th>
+                                            <th>Capabilities</th>
+                                            <th>Active Tasks</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="workers-table-body">
+                                        <!-- Workers will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Task Details Modal -->
+        <div class="modal fade" id="task-details-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Task Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="task-details-content">
+                        <!-- Task details will be populated by JavaScript -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="test-model-btn">Test Model</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results Modal -->
+        <div class="modal fade" id="test-results-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Model Test Results</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="test-results-content">
+                            <!-- Test results will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">Decentralized AI Training System &copy; 2023</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', path='/app.js') }}"></script>
+</body>
+</html> 

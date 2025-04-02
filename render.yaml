@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: decentralized-ai-dashboard
+    env: python
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: gunicorn -w 1 -k uvicorn.workers.UvicornWorker web_frontend:app
+    envVars:
+      - key: DEPLOYMENT
+        value: "true"
+      - key: DEMO_MODE
+        value: "true"

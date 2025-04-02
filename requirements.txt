@@ -1,0 +1,13 @@
+web3>=6.11.1
+numpy>=1.26.0  # Updated for Python 3.12 compatibility
+torch>=2.0.1
+python-dotenv>=1.0.0
+aiortc>=1.5.0
+cryptography>=41.0.3
+# Optional: Uncomment if needed
+# tenseal==0.3.12  # Temporarily commented out as it might have compatibility issues
+pynacl>=1.5.0
+fastapi>=0.103.1
+uvicorn>=0.23.2
+pydantic>=2.3.0
+python-multipart>=0.0.6
