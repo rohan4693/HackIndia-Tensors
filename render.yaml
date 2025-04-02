@@ -2,10 +2,15 @@ services:
   - type: web
     name: decentralized-ai-dashboard
     env: python
-    buildCommand: pip install -r requirements-deploy.txt
-    startCommand: gunicorn -w 1 -k uvicorn.workers.UvicornWorker web_frontend:app
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web_frontend:app --bind 0.0.0.0:$PORT --worker-class uvicorn.workers.UvicornWorker --workers 1 --timeout 120
     envVars:
       - key: DEPLOYMENT
         value: "true"
       - key: DEMO_MODE
         value: "true"
+      - key: PORT
+        value: "8000"
+      - key: PYTHON_VERSION
+        value: "3.9"
+    healthCheckPath: /health
